@@ -1,9 +1,17 @@
 import flatpickr from 'flatpickr';
+import { Report } from 'notiflix/build/notiflix-report-aio';
 import 'flatpickr/dist/flatpickr.min.css';
 
-// const dateInput = document.querySelector('input#datetime-picker');
 const startBtn = document.querySelector('button[data-start]');
+const daysValue = document.querySelector('span[data-days]');
+const hoursValue = document.querySelector('span[data-hours]');
+const minutesValue = document.querySelector('span[data-minutes]');
+const secondsValue = document.querySelector('span[data-seconds]');
+
 let deltaTime = null;
+
+const TIMER_INTERVAL = 1000;
+
 const options = {
   enableTime: true,
   time_24hr: true,
@@ -11,8 +19,8 @@ const options = {
   minuteIncrement: 1,
 
   onClose(selectedDates) {
-    const startTime = Date.now();
-    const selectedDate = selectedDates[0].getTime();
+    const startTime = calendar.now;
+    const selectedDate = selectedDates[0];
     deltaTime = selectedDate - startTime;
     console.log('startTime', startTime);
     console.log('selectedDate', selectedDate);
@@ -22,19 +30,47 @@ const options = {
     console.log('isValidDate', isValidDate);
 
     if (!isValidDate) {
-      return window.alert('Please choose a date in the future');
+      return Report.failure('Date Failure', 'Please choose a date in the future.', 'Ok');
     }
 
     console.log('next');
     startBtn.disabled = false;
   },
 };
+
 const calendar = flatpickr('input#datetime-picker', options);
 
-// console.log('dateInput', dateInput);
+startBtn.addEventListener('click', timerStart);
+
+console.log('calendar', calendar);
 console.log('startBtn', startBtn);
+console.log('daysValue', daysValue);
+console.log('hoursValue', hoursValue);
+console.log('minutesValue', minutesValue);
+console.log('secondsValue', secondsValue);
 
 startBtn.disabled = true;
+
+function timerStart() {
+  let timeLeft = deltaTime;
+  console.log('timerStart timeLeft', timeLeft);
+  const timerID = setInterval(() => {
+    timeLeft -= TIMER_INTERVAL;
+
+    if (timeLeft <= 0) {
+      timeLeft = 0;
+      clearTimeout(timerID);
+    }
+
+    const timeLeftArr = convertMs(timeLeft);
+    console.log('timeLeft', timeLeftArr);
+
+    daysValue.innerHTML = addLeadingZero(timeLeftArr.days);
+    hoursValue.innerHTML = addLeadingZero(timeLeftArr.hours);
+    minutesValue.innerHTML = addLeadingZero(timeLeftArr.minutes);
+    secondsValue.innerHTML = addLeadingZero(timeLeftArr.seconds);
+  }, TIMER_INTERVAL);
+}
 
 function convertMs(ms) {
   // Number of milliseconds per unit of time
@@ -55,10 +91,6 @@ function convertMs(ms) {
   return { days, hours, minutes, seconds };
 }
 
-console.log(convertMs(2000)); // {days: 0, hours: 0, minutes: 0, seconds: 2}
-console.log(convertMs(140000)); // {days: 0, hours: 0, minutes: 2, seconds: 20}
-console.log(convertMs(24140000)); // {days: 0, hours: 6 minutes: 42, seconds: 20}
-
 function addLeadingZero(value) {
-  padStart();
+  return String(value).padStart(2, '0');
 }
