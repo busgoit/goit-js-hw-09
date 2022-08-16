@@ -2,6 +2,7 @@ import flatpickr from 'flatpickr';
 import { Report } from 'notiflix/build/notiflix-report-aio';
 import 'flatpickr/dist/flatpickr.min.css';
 
+const dateInput = document.querySelector('#datetime-picker');
 const startBtn = document.querySelector('button[data-start]');
 const daysValue = document.querySelector('span[data-days]');
 const hoursValue = document.querySelector('span[data-hours]');
@@ -53,6 +54,9 @@ startBtn.disabled = true;
 
 function timerStart() {
   let timeLeft = deltaTime;
+  startBtn.disabled = true;
+  dateInput.disabled = true;
+
   console.log('timerStart timeLeft', timeLeft);
   const timerID = setInterval(() => {
     timeLeft -= TIMER_INTERVAL;
@@ -60,15 +64,17 @@ function timerStart() {
     if (timeLeft <= 0) {
       timeLeft = 0;
       clearTimeout(timerID);
+      startBtn.disabled = false;
+      dateInput.disabled = false;
     }
 
-    const timeLeftArr = convertMs(timeLeft);
-    console.log('timeLeft', timeLeftArr);
+    const timeLeftObj = convertMs(timeLeft);
+    console.log('timeLeft', timeLeftObj);
 
-    daysValue.innerHTML = addLeadingZero(timeLeftArr.days);
-    hoursValue.innerHTML = addLeadingZero(timeLeftArr.hours);
-    minutesValue.innerHTML = addLeadingZero(timeLeftArr.minutes);
-    secondsValue.innerHTML = addLeadingZero(timeLeftArr.seconds);
+    daysValue.innerHTML = addLeadingZero(timeLeftObj.days);
+    hoursValue.innerHTML = addLeadingZero(timeLeftObj.hours);
+    minutesValue.innerHTML = addLeadingZero(timeLeftObj.minutes);
+    secondsValue.innerHTML = addLeadingZero(timeLeftObj.seconds);
   }, TIMER_INTERVAL);
 }
 
